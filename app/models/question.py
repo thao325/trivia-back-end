@@ -7,12 +7,12 @@ Question
 '''
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    prompt = db.Column(db.String)
-    choice_1 = db.Column(db.String)
-    choice_2 = db.Column(db.String)
-    choice_3 = db.Column(db.String)
-    choice_4 = db.Column(db.String)
-    correct_answer = db.Column(db.String)
+    prompt = db.Column(db.String(500))
+    choice_1 = db.Column(db.String(255))
+    choice_2 = db.Column(db.String(255))
+    choice_3 = db.Column(db.String(255))
+    choice_4 = db.Column(db.String(255))
+    correct_answer = db.Column(db.String(255))
     # score = db.Column(db.Integer, default=0)
 
 
@@ -31,7 +31,8 @@ class Question(db.Model):
             'correct_answer': self.correct_answer
         }
         
-    # takes JSON data, converts into a Python object of the `Question` class
+    # takes JSON data, converts into a Python object of `Question` class
+    # needs to match attributes of Question model in order to do so
     # to transfer data from frontend to backend
     @classmethod
     def from_dict(cls, data):
