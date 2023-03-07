@@ -1,3 +1,6 @@
+from app import db
+from app.models.question import Question 
+
 
 # list of dictionaries, each dict is a question
 questions_data = [
@@ -372,3 +375,15 @@ questions_data = [
         'correct_answer': '1'
     },
 ]
+
+# # iterate through the questions_data list and add each question to the database
+# for question_data in questions_data:
+#     question = Question(prompt=question_data['prompt'], 
+#                         choice_1=question_data['choices']['1'],
+#                         choice_2=question_data['choices']['2'],
+#                         choice_3=question_data['choices']['3'],
+#                         choice_4=question_data['choices']['4'],
+#                         correct_answer=question_data['correct_answer'])
+#     db.session.add(question)
+# db.session.commit()
+

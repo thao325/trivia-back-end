@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.question import Question
 from app import db
 import os
+from random import sample 
 # import requests 
 # from dotenv import load_dotenv
 
@@ -24,19 +25,34 @@ def validate_model(cls, model_id):
     return model
 
 
-
-
-# create endpoints 
-# @questions_bp.route("", methods=["GET"])
-# def get_questions():
-
-
-
-    # returns list of question dictionaries, pass into jsonfy()
-    # to turn it into a response object
-    # return jsonify(questions_response)
-
+#create endpoints 
+'''
+GET all questions from db, select 25 random for game
+'''
+@questions_bp.route("", methods=["GET"])
+def get_random_questions():
+    # SQLAlchemy to query db for all instances of `Question` model
+    questions = Question.query.all()
+    print(f"Number of questions in database: {len(questions)}")
+    
+    # debugging 
     # use make_response when returning strings or dictionaries
+    if len(questions) < 25:
+        abort(make_response(jsonify({"message":"Not enough questions in the database"}), 400))
+        
+    # return 25 random questions from db
+    random_questions = sample(questions, 25)
+    
+    # list of question dictionaries, pass into jsonfy()
+    # to turn it into a response object 
+    # (serializing model instance data to dict format (JSON) for frontend) 
+    questions_response = [question.to_dict() for question in random_questions]
+    return jsonify(questions_response), 200
+
+
+    
+    
+
 
 # '''
 # HANDLE SCORE
