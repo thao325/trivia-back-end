@@ -16,7 +16,7 @@ class Question(db.Model):
     # score = db.Column(db.Integer, default=0)
 
 
-    # converts instances of Question class to JSON 
+    # converts instances of Question class to JSON (serializing)
     # to transfer data from backend to frontend
     def to_dict(self):
         return {
@@ -33,7 +33,7 @@ class Question(db.Model):
         
     # takes JSON data, converts into a Python object of `Question` class
     # needs to match attributes of Question model in order to do so
-    # to transfer data from frontend to backend
+    # to transfer data from frontend to backend (deserializing)
     @classmethod
     def from_dict(cls, data):
         return cls(

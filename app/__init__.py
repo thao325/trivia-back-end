@@ -31,6 +31,7 @@ def create_app(test_config=None):
     # can't put at the top 
     from app.questions import questions_data
     
+    # creating an app context to allow SQLAlchemy to work correctly
     with app.app_context():
     # iterate through the questions_data list and add each question to the database
         for question_data in questions_data:

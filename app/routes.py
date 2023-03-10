@@ -10,6 +10,11 @@ from random import sample
 # create blueprint
 questions_bp = Blueprint("questions_bp", __name__, url_prefix="/questions")
 
+# keep track of questions answered right
+# global bc want to keep track accross multiple requests!
+num_correct = 0
+
+
 # validate model
 def validate_model(cls, model_id):
     try:
@@ -43,79 +48,62 @@ def get_random_questions():
     # return 25 random questions from db
     random_questions = sample(questions, 25)
     
-    # list of question dictionaries, pass into jsonfy()
-    # to turn it into a response object 
-    # (serializing model instance data to dict format (JSON) for frontend) 
+    # serializing model instance data to dict format (JSON) for frontend
     questions_response = [question.to_dict() for question in random_questions]
+    
+    # reset score and number of correct answers for each new game
+    global num_correct
+    num_correct = 0
+    
+    # list of 25 question dictionaries
+    # pass into jsonfy() to turn it into a response object
     return jsonify(questions_response), 200
 
 
+
+'''
+HANDLE ANSWER SUBMISSION
+POST user answer to server, update score and number of correct answers
+'''
+@questions_bp.route("/answer", methods=["POST"])
+def check_user_answer():
+    # extract JSON data from POST request
+    # DESERIALIZE, convert from JSON to python dict
+    data = request.get_json()
+    # extract JSON data, reassign
+    question_id = data["question_id"]
+    user_answer = data["user_answer"]
+    
+    # get the correct answer for the question from database
+    question = validate_model(Question, question_id)
+    correct_answer = question.correct_answer
+    
+    # check if user's answer matches correct answer
+    # update score and number of correct answers
+    global num_correct
+    if user_answer == correct_answer:
+        num_correct += 1
+    
+    # don't return any data, just resetting score variables
+    # 200 OK
+    return jsonify({}), 200
     
     
+    
+'''
+GET user's final score and number of correct answers
+'''
+@questions_bp.route("/score", methods=["GET"])
+def get_user_score():
+    global num_correct
+    
+    percentage_score = (num_correct / 25) * 100
+    
+    # create a dictionary to hold the score information
+    response_data = {"num_correct": num_correct,  "percentage_score": percentage_score}
 
-
-# '''
-# HANDLE SCORE
-# '''
-
-# @app.route('/submit-answers', methods=['POST'])
-# def submit_answers():
-#     data = request.get_json()
-#     # `data` = list of dictionaries, where each dict represents a question
-#     # Each dictionary contains the user's answer for that question
-
-#     # keep track of # of correct answers
-#     num_correct = 0
-
-#     # Loop through each Q, check if user's answer is correct
-#     for question_data in data:
-#         question_id = question_data['id']
-#         user_answer = question_data['answer']
-#         question = Question.query.get(question_id)
-
-#         # Check if the user's answer is correct
-#         if user_answer == question.correct_answer:
-#             num_correct += 1
-
-#     # Calculate the user's score based on the number of correct answers
-#     score = num_correct * 10  # assuming each correct answer is worth 10 points
-
-#     # Return the number of correct answers and the score as a JSON response
-#     return jsonify({'num_correct': num_correct, 'score': score})
+    return jsonify(response_data), 200
 
 
 
 
-
-
-
-
-
-# ====== RANDOM LOGIC???? ========== ##
-
-# @app.route('/questions/<int:id>/answer', methods=['POST'])
-# def answer_question(id):
-#     req_body = request.get_json()
-#     question = Question.query.get(id)
-
-#     if question.correct_answer == req_body['answer']:
-#         question.score += 1
-#         db.session.commit()
-
-#     return jsonify(question.to_dict())
-
-
-# # Get the current question
-# question = Question.query.get(question_id)
-
-# # Check if the user's answer is correct
-# if user_answer == question.correct_answer:
-#     # Increment the user's score
-#     question.score += 1
-#     db.session.commit()
-
-# # Get the number of correct answers
-# num_correct = Question.query.filter(Question.score == 1).count()
-
-# # Calculate the final score as a percentage
-# final_score = (num_correct / 25) * 100
